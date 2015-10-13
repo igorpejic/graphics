@@ -1,0 +1,1 @@
+/usr/bin/c++       CMakeFiles/minimal_gl.dir/program.cpp.o  -o minimal_gl -rdynamic -lGLU -lGL -lSM -lICE -lX11 -lXext -lglut -lXmu -lXi 

@@ -1,0 +1,10 @@
+PROJECT (MINIMAL_GL)
+cmake_minimum_required(VERSION 2.6)
+find_package(OpenGL REQUIRED)
+find_package(GLUT REQUIRED)
+#if(CMAKE_COMPILER_IS_GNUCXX)
+#	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic -Werror")
+#endif()
+
+ADD_EXECUTABLE(minimal_gl program.cpp)
+target_link_libraries(minimal_gl ${OPENGL_LIBRARIES} ${GLUT_LIBRARY})

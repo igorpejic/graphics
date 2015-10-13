@@ -1,0 +1,2 @@
+/home/igor/graphics/SimpleCone/Step1/CMakeFiles/Step1.dir
+/home/igor/graphics/SimpleCone/Step2/CMakeFiles/Step2.dir

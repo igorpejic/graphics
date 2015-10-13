@@ -1,0 +1,1 @@
+/home/igor/graphics/minimal_gl2/src/CMakeFiles/minimal_gl.dir

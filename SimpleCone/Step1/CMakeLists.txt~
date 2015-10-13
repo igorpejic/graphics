@@ -1,0 +1,2 @@
+ADD_EXECUTABLE(Step1 Cone.cxx)
+TARGET_LINK_LIBRARIES(Step1 vtkRendering)

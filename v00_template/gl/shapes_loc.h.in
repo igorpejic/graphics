@@ -1,0 +1,12 @@
+#ifndef _shapes_loc_h
+#define _shapes_loc_h
+
+#include <string>
+
+std::string shapes_loc()
+{ 
+    std::string dataPath = "@DATA_FOLDER@";
+    return dataPath+"/" + "gl_data.txt";    
+}
+
+#endif
