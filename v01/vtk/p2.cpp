@@ -20,8 +20,14 @@ vtkSmartPointer<vtkStructuredGrid> createGrid(const int& dimx, const int& dimy)
         y += 1.0;
         for(unsigned int i = 0; i < dimx; i++)
         {
-            x += .5;
-            points->InsertNextPoint(x, y,0);
+            //x += .5;
+            //points->InsertNextPoint(x, y,0);
+		double dx = (x1-x0)/dimx;
+		x = x0+i*dx;
+		y0 = sin(x);
+		double dy = (y1-sin(x))/dimy;
+		y = y0+j*dy;
+	        points->InsertNextPoint(x, y,0);
         }
     }
     grid->SetDimensions(dimx,dimy,1);
