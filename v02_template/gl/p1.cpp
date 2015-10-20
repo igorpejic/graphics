@@ -17,6 +17,7 @@ void changeSize(int w, int h)
 	
 	glViewport(0, 0, w, h);
 
+	// renderira sve sto je manje od 1 i od 1000 od mene, zato se na pocetku nije nista vidjelo
     gluPerspective(45,ratio,1,1000); // view angle u y, aspect, near, far
     /*glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -60,6 +61,43 @@ void drawAxis(float size)
 
 float _angle = 30.0f;
 float _cameraAngle = 0.0f;
+void drawTriangle(){
+	glVertex3f(0.5f, -0.5f, 0.0f);
+	glVertex3f(0.0f, 0.5f, 0.0f);
+	glVertex3f(-0.5f, -0.5f, 0.0f);
+}
+void drawPentagon(){
+	glVertex3f(-0.5f, -0.5f, 0.0f);
+	glVertex3f(0.5f, -0.5f, 0.0f);
+	glVertex3f(-0.5f, 0.0f, 0.0f);
+	
+	glVertex3f(-0.5f, 0.0f, 0.0f);
+	glVertex3f(0.5f, -0.5f, 0.0f);
+	glVertex3f(0.5f, 0.0f, 0.0f);
+	
+	glVertex3f(-0.5f, 0.0f, 0.0f);
+	glVertex3f(0.5f, 0.0f, 0.0f);
+	glVertex3f(0.0f, 0.5f, 0.0f);
+}
+
+void drawTrapezoid(){
+	glVertex3f(-0.7f, -0.5f, 0.0f);
+	glVertex3f(0.7f, -0.5f, 0.0f);
+	glVertex3f(0.4f, 0.5f, 0.0f);
+	glVertex3f(-0.4f, 0.5f, 0.0f);	
+}
+void drawNT(int n){
+	for (int i = 0; i < n; i++){
+        glPushMatrix();
+		glRotatef((360/n)*i, 0, 0, 1);
+		glTranslatef(1, 0, 0);
+		glBegin(GL_QUADS);
+		drawTrapezoid();
+		glEnd();
+		glPopMatrix();
+	}
+
+}
 
 void drawScene() 
 {
@@ -67,36 +105,42 @@ void drawScene()
 	
 	glMatrixMode(GL_MODELVIEW); // idemo u perspektivu
 	glLoadIdentity(); // resetiranje
-	
-	glBegin(GL_QUADS);
-	//Trapezoid
-	glVertex3f(-0.7f, -0.5f, 0.0f);
-	glVertex3f(0.7f, -0.5f, 0.0f);
-	glVertex3f(0.4f, 0.5f, 0.0f);
-	glVertex3f(-0.4f, 0.5f, 0.0f);	
-	glEnd();
+
+	//posljednji red: kako kamera stoji	  
+	gluLookAt(0, 0, 5,
+	          0, 0, -1,
+		  0, 1, 0);
+
+	//translatiraj objekt po z-u za -5, primjenjuje se na cijelu scenu; svi objekti
+	//gl-smurf naming
+	//f-floating point, glTranslatei- integer
+	glTranslatef(0, 0, -5);
+
+    //rotiraj citavu scenu
+    glRotatef(_angle, 0, 0, 1);
+
+	// ogranici transformaciju samo na ovaj objekt
+	glPushMatrix();
+	drawNT(4);
+	glPopMatrix();
+	// kraj ogranicenja
 		
+	glPushMatrix();
+	glTranslatef(0, -1, 0);
 	glBegin(GL_TRIANGLES);
 	//Pentagon
-	glVertex3f(-0.5f, -0.5f, 0.0f);
-	glVertex3f(0.5f, -0.5f, 0.0f);
-	glVertex3f(-0.5f, 0.0f, 0.0f);
-	
-	glVertex3f(-0.5f, 0.0f, 0.0f);
-	glVertex3f(0.5f, -0.5f, 0.0f);
-	glVertex3f(0.5f, 0.0f, 0.0f);
-	
-	glVertex3f(-0.5f, 0.0f, 0.0f);
-	glVertex3f(0.5f, 0.0f, 0.0f);
-	glVertex3f(0.0f, 0.5f, 0.0f);
+	//drawPentagon();
 	glEnd();
+	glPopMatrix();
 	
+	glPushMatrix();
+	glTranslatef(1, 0, 0);
 	glBegin(GL_TRIANGLES);
 	//Triangle
-	glVertex3f(0.5f, -0.5f, 0.0f);
-	glVertex3f(0.0f, 0.5f, 0.0f);
-	glVertex3f(-0.5f, -0.5f, 0.0f);
+	//drawTriangle();
 	glEnd();
+	glPopMatrix();
+	glRotatef(_angle, 0, 0, 1);
 		
 	glutSwapBuffers();
 }
@@ -117,7 +161,9 @@ int main(int argc, char **argv)
 	glutInitWindowSize(400, 400);
 
 	glutCreateWindow("v4 - p1");
+	// reakcija na promjenu prozora
 	glutReshapeFunc(changeSize);
+
 	glutDisplayFunc(drawScene);
 	glutTimerFunc(25, update, 0);
 	glutMainLoop();

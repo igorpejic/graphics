@@ -26,3 +26,9 @@
 *.exe
 *.out
 *.app
+*p1
+*p2
+
+*.cmake
+*.make
+*.log

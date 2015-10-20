@@ -1,0 +1,2 @@
+/home/igor/graphics/v02_template/gl/CMakeFiles/p1.dir
+/home/igor/graphics/v02_template/vtk/CMakeFiles/p2.dir
