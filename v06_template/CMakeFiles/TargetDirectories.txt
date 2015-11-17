@@ -1,0 +1,1 @@
+/home/igor/graphics/v06_template/CMakeFiles/p1.dir

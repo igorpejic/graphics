@@ -164,6 +164,78 @@ void solidSphere(GLdouble radius, GLint slices, GLint stacks)
     glEnd();
 }
 
+void setColor(){
+	float red, green, blue;
+	if(dist <= 0.33) {
+		red = 0;
+		green = dist/0.33;
+		blue = 1-(dist/0.33);
+	}
+	else if(dist <= 0.66) {
+		//(dist  - pocetna tocka) / duzina intervala
+		// a-------c-------b
+		// percent from a to c == (c-a)/(a-b)
+		red = (dist - 0.33)/0.33;
+		green = 1;
+		blue = 0;
+	}
+	else {
+		red = 1;
+		green = 1- (dist - 0.66)/0.33;
+		blue = 0;
+	}
+         glColor3f( red, green, blue );
+}
+
+void drawCube()
+{
+	float x,y,z;
+    x = getValue(dist, pt_x);
+    y = getValue(dist, pt_y);
+    z = getValue(dist, pt_z);
+    glPushMatrix();
+    glTranslatef(x,y,z);
+
+    glBegin(GL_QUADS);
+	setColor();
+
+	//prednja
+    glVertex3f(0, 0, 0);
+    glVertex3f(1, 0, 0);
+    glVertex3f(1, 1, 0);
+    glVertex3f(0, 1, 0);
+
+	//desna
+    glVertex3f(1, 0, 0);
+    glVertex3f(1, 0, 1);
+    glVertex3f(1, 1, 1);
+    glVertex3f(1, 1, 0);
+
+	//gornja
+    glVertex3f(1, 1, 0);
+    glVertex3f(1, 1, 1);
+    glVertex3f(0, 1, 1);
+    glVertex3f(0, 1, 0);
+
+	//lijeva
+    glVertex3f(0, 0, 0);
+    glVertex3f(0, 0, 1);
+    glVertex3f(0, 1, 1);
+    glVertex3f(0, 1, 0);
+	//straznja
+    glVertex3f(1, 0, 1);
+    glVertex3f(1, 1, 1);
+    glVertex3f(0, 1, 1);
+    glVertex3f(0, 0, 1);
+	//donja
+    glVertex3f(0, 0, 0);
+    glVertex3f(1, 0, 0);
+    glVertex3f(1, 0, 1);
+    glVertex3f(0, 0, 1);
+    glEnd();
+    glPopMatrix();
+}
+
 void drawTriquad()
 {
     glPushMatrix();
@@ -201,6 +273,7 @@ void drawTriFan2d()
     glVertex2fv(coords + 6);
     glEnd();
 }
+float cube_angle=-180;
 void drawScene()
 {
     glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -212,7 +285,8 @@ void drawScene()
     gluLookAt ( 0.0,0.0,10.0, // camera
                 0.0,0.0,-1.0, // where
                 0.0f,1.0f,0.0f ); // up vector
-    drawTriquad();
+	//drawCube();
+    //drawTriquad();
 
     /*drawTriFan2d();*/
 
@@ -225,7 +299,10 @@ void drawScene()
 
             glTranslatef(0.95,0.5,0);
             glPushMatrix();
-                drawSphere();
+                //drawSphere();
+		glScalef(0.5, 0.5, 0.5);
+		glRotatef(cube_angle, 0, 1, 0);
+		drawCube();
             glPopMatrix();
             drawControlPoints();
             drawBezierCurve();
@@ -240,6 +317,8 @@ void update ( int /*value*/ )
 {
     glutPostRedisplay();
     cone_angle += 1;
+	cube_angle += 1;
+	if (cube_angle > 0){cube_angle = -180;}
     dist = 1 - cone_angle/(0-90);
     if(cone_angle > 0 ){cone_angle = -90;}
     //update glut-a nakon 25 ms
@@ -266,7 +345,8 @@ int main ( int argc, char **argv )
     glutReshapeFunc ( changeSize );
     glutDisplayFunc ( drawScene );
     glutTimerFunc ( 25, update, 0 );
-    glShadeModel (/*GL_SMOOTH*/GL_FLAT);
+    //glShadeModel (/*GL_SMOOTH*/GL_FLAT);
+    glShadeModel (GL_SMOOTH/*GL_FLAT*/);
     glutMainLoop();
 
     return 0;

@@ -1,0 +1,1 @@
+/usr/bin/c++   -std=c++0x -Wall -Wextra -pedantic    CMakeFiles/p1.dir/p1.cpp.o  -o p1 -rdynamic -lGLU -lGL -lSM -lICE -lX11 -lXext -lglut -lXmu -lXi 
