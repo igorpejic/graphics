@@ -1,0 +1,416 @@
+<html><head>   
+	<meta name="Author" content="Antonio Ramires Fernandes">
+	<meta name="Description" content="A tutorial on Terrain Generation for OpenGL. Create terrains from fractal algorithms or images">
+	<meta name="KeyWords" content="OpenGL, tutorial, Terrain, Fractal, Terrain Generation, TGA, Image Loader, smoothing">
+	<style type="text/css">
+		<!--PRE{font-family : "Arial";font-size : 10pt;} -->
+		<!--TD{font-family:"Arial";font-size:10pt;} -->
+	</style>
+	<title>OpenGL @ Lighthouse 3D - Terrain Tutorial</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+</head>
+
+<body bgcolor="#FFFFFF">
+
+<center>
+
+<table border="0" cellpadding="0" cellspacing="0">
+	<tbody><tr>
+		<td>
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/spacer_002.gif" height="1" width="40"></td>
+		<td>
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/spacer_002.gif" height="1" width="6"></td>
+		<td>
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/spacer_002.gif" height="1" width="48"></td>
+		<td>
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/spacer_002.gif" height="1" width="43"></td>
+		<td>
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/spacer_002.gif" height="1" width="28"></td>
+		<td>
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/spacer_002.gif" height="1" width="58"></td>
+		<td>
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/spacer_002.gif" height="1" width="4"></td>
+		<td>
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/spacer_002.gif" height="1" width="90"></td>
+		<td>
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/spacer_002.gif" height="1" width="3"></td>
+		<td>
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/spacer_002.gif" height="1" width="49"></td>
+		<td>
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/spacer_002.gif" height="1" width="52"></td>
+		<td>
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/spacer_002.gif" height="1" width="64"></td>
+		<td>
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/spacer_002.gif" height="1" width="26"></td>
+		<td>
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/spacer_002.gif" height="1" width="45"></td>
+		<td>
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/spacer_002.gif" height="1" width="35"></td>
+	</tr>
+	<tr>
+		<td colspan="2" rowspan="2">
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/openglyellow_01.gif" height="30" width="46"></td>
+		<td colspan="2">
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/openglyellow_02.gif" border="0" height="27" width="91"></td>
+		<td colspan="3">
+			<a href="http://www.lighthouse3d.com/vrml/index.shtml"><img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/openglyellow_03.gif" alt="VRML" border="0" height="27" width="90"></a></td>
+		<td>
+			<a href="http://www.lighthouse3d.com/w3d/index.shtml"><img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/openglyellow_04.gif" alt="Shockwave 3D" border="0" height="27" width="90"></a></td>
+		<td colspan="7">
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/openglyellow_05.gif" height="27" width="274"></td>
+	</tr>
+	<tr>
+		<td colspan="12">
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/openglyellow_06.gif" height="3" width="510"></td>
+		<td rowspan="2">
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/openglyellow_07.gif" height="26" width="35"></td>
+	</tr>
+	<tr>
+		<td>
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/openglyellow_08.gif" height="23" width="40"></td>
+		<td colspan="2">
+			<a href="http://www.lighthouse3d.com/"><img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/openglyellow_09.gif" alt="Home" border="0" height="23" width="54"></a></td>
+		<td colspan="2">
+ 			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/openglwhite_10.gif" height="23" width="71"></td>
+		<td>
+			<a href="http://www.lighthouse3d.com/opengl/books.shtml"><img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/openglyellow_11.gif" alt="Books" border="0" height="23" width="58"></a></td>
+		<td colspan="3">
+			<a href="http://www.lighthouse3d.com/opengl/apps.shtml"><img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/openglyellow_12.gif" alt="Applications" border="0" height="23" width="97"></a></td>
+		<td>
+			<a href="http://www.lighthouse3d.com/opengl/tools.shtml"><img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/openglyellow_13.gif" alt="Tools" border="0" height="23" width="49"></a></td>
+		<td>
+			<a href="http://www.lighthouse3d.com/opengl/docs.shtml"><img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/openglyellow_14.gif" alt="Docs" border="0" height="23" width="52"></a></td>
+		<td>
+			<a href="http://www.lighthouse3d.com/opengl/models.shtml"><img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/openglyellow_15.gif" alt="Models" border="0" height="23" width="64"></a></td>
+		<td colspan="2">
+			<a href="http://www.lighthouse3d.com/opengl/textures.shtml"><img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/openglyellow_16.gif" alt="Textures" border="0" height="23" width="71"></a></td>
+	</tr>
+	<tr>
+		<td>
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/openglyellow_17.gif" height="1" width="40"></td>
+		<td colspan="2">
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/openglyellow_18.gif" height="1" width="54"></td>
+		<td colspan="2">
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/openglyellow_19.gif" height="1" width="71"></td>
+		<td>
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/openglyellow_20.gif" height="1" width="58"></td>
+		<td colspan="3">
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/openglyellow_21.gif" height="1" width="97"></td>
+		<td colspan="4">
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/openglyellow_22.gif" height="1" width="191"></td>
+		<td colspan="2">
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/openglyellow_23.gif" height="1" width="80"></td>
+	</tr>
+</tbody></table>
+
+
+
+
+</center>
+
+<p>
+<!-- ? include("../../pub/pub.php3") ? -->
+</p><p>
+
+<table align="CENTER" border="0" cellpadding="0" cellspacing="0" width="95%">
+	<tbody><tr>
+		<td colspan="2">
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/TUTORIAL2_03.gif" height="56" width="8"></td>
+		<td>
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/TUTORIAL2_04.gif" height="56" width="20"></td>
+		<td>
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/TUTORIAL2_05.gif" height="56" width="130"></td>
+		<td>
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/TUTORIAL2_06.gif" height="56" width="17"></td>
+		<td>
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/TUTORIAL2_08.gif" height="56" width="7"></td>
+		<td>
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/TUTORIAL2_09.gif" height="56" width="23"></td>
+		<td background="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/TUTORIAL2_10.gif" width="4000"><img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/spacer.gif" height="1" width="1"></td>
+		<td>
+			<a href="mailto:antonio.ramires@lighthouse3d.com"><img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/TUTORIAL2_11a.gif" alt="Please send me your comments" border="0" height="56" width="88"></a><img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/TUTORIAL2_11.gif" height="56" width="260"></td>
+	</tr>
+	<tr>	<td width="1"><img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/spacer.gif" height="1" width="1"></td>
+		<td background="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/TUTORIAL2_14.gif" width="7"><img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/spacer.gif" height="1" width="1"></td>
+		<td colspan="3" bgcolor="#cccccc" valign="top" width="167">
+		
+		
+		
+		<table border="0" width="95%"><tbody><tr><td>
+		<a href="http://www.lighthouse3d.com/opengl/tutorials.shtml">Tutorials List</a><br><p>
+
+<b>Terrain Tutorial</b></p><p>
+
+Index</p><p>
+
+
+<a href="http://www.lighthouse3d.com/opengl/terrain/index.php3?introduction">Introduction</a><br>
+</p><p>
+<b>A TGA Library</b><br>
+<a href="http://www.lighthouse3d.com/opengl/terrain/index.php3?tgalib">A Simple TGA Library</a><br>
+<a href="http://www.lighthouse3d.com/opengl/terrain/index.php3?tgasource">TGA lib Source</a><br>
+</p><p>
+<b>Height Maps</b><br>
+<a href="http://www.lighthouse3d.com/opengl/terrain/index.php3?heightmap">Height Maps from Images</a><br>
+</p><p>
+<b>Lighting</b><br>
+<a href="http://www.lighthouse3d.com/opengl/terrain/index.php3?normals">Computing Normals</a><br>
+<a href="http://www.lighthouse3d.com/opengl/terrain/index.php3?light">Simulating Lighting</a><br>
+<a href="http://www.lighthouse3d.com/opengl/terrain/index.php3?lightdetails">Implementation Details</a><br>
+<a href="http://www.lighthouse3d.com/opengl/terrain/index.php3?lightimg">Screen Shots</a><br>
+</p><p>
+<a href="http://www.lighthouse3d.com/opengl/terrain/terrain1.zip">Source Code</a>
+</p><p>
+<b>Artificial Terrain Generation</b><br>
+<a href="http://www.lighthouse3d.com/opengl/terrain/index.php3?fault">The Fault Algorithm</a><br>
+<a href="http://www.lighthouse3d.com/opengl/terrain/index.php3?impdetails">Implementation Details</a><br>
+<a href="http://www.lighthouse3d.com/opengl/terrain/index.php3?faultvar">Two Simple Variations</a><br>
+<a href="http://www.lighthouse3d.com/opengl/terrain/index.php3?circles">The Circles Algorithm</a><br>
+</p><p>
+<a href="http://www.lighthouse3d.com/opengl/terrain/index.php3?mpd">Mid Point Displacement</a><br>
+<a href="http://www.lighthouse3d.com/opengl/terrain/index.php3?mpd2">The MPD Algorithm</a><br>
+</p><p>
+<a href="http://www.lighthouse3d.com/opengl/terrain/index.php3?particle">Particle Deposition</a><br>
+</p><p>
+<b>Smoothing</b><br>
+<a href="http://www.lighthouse3d.com/opengl/terrain/index.php3?smoothing">Smoothing</a><br>
+<a href="http://www.lighthouse3d.com/opengl/terrain/index.php3?smoothingmatrix">Matrix filters</a><br>
+<a href="http://www.lighthouse3d.com/opengl/terrain/index.php3?smoothingapi">API details</a><br>
+</p><p>
+<a href="http://www.lighthouse3d.com/opengl/appstools/tg">Source (Linux and Win32)</a><br>
+
+		</p></td></tr></tbody></table>
+		
+		
+		
+		
+			</td>
+		<td colspan="1" background="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/TUTORIAL2_17.gif" width="7"><img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/spacer.gif" height="1" width="1"></td><td></td>
+		<td colspan="3">
+		
+		
+		
+<table border="0" width="100%">
+<tbody><tr>
+<td>
+ [<a href="http://www.lighthouse3d.com/opengl/terrain/index.php?heightmap">Previous: Height Maps from Images</a>]</td><td align="RIGHT">
+[<a href="http://www.lighthouse3d.com/opengl/terrain/index.php?light">Next: Simulating Light</a>]	
+</td></tr></tbody></table>
+<p>
+<table align="right" border="0" cellspacing="1" width="140">
+
+        <tbody><tr>
+
+          <td align="right" width="100%">
+
+         <script src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/ca-pub-9129408611271156.js" type="text/javascript" async=""></script><script type="text/javascript"><!--
+google_ad_client = "ca-pub-9129408611271156";
+/* OldSite */
+google_ad_slot = "8141442858";
+google_ad_width = 160;
+google_ad_height = 600;
+//-->
+</script>
+<script type="text/javascript" src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/show_ads.js">
+</script><ins id="aswift_0_expand" style="display:inline-table;border:none;height:600px;margin:0;padding:0;position:relative;visibility:visible;width:160px;background-color:transparent"><ins id="aswift_0_anchor" style="display:block;border:none;height:600px;margin:0;padding:0;position:relative;visibility:visible;width:160px;background-color:transparent"><iframe marginwidth="0" marginheight="0" vspace="0" hspace="0" allowtransparency="true" scrolling="no" allowfullscreen="true" onload="var i=this.id,s=window.google_iframe_oncopy,H=s&amp;&amp;s.handlers,h=H&amp;&amp;H[i],w=this.contentWindow,d;try{d=w.document}catch(e){}if(h&amp;&amp;d&amp;&amp;(!d.body||!d.body.firstChild)){if(h.call){setTimeout(h,0)}else if(h.match){try{h=s.upd(h,i)}catch(e){}w.location.replace(h)}}" id="aswift_0" name="aswift_0" style="left:0;position:absolute;top:0;" frameborder="0" height="600" width="160"></iframe></ins></ins>
+
+</td>
+
+        </tr>
+
+      </tbody></table>
+
+
+
+
+
+
+</p><h1>
+    <center>Terrain Tutorial</center>
+</h1>
+<br>
+<h2>
+    <center>
+Computing Normals
+</center>
+</h2>
+<br>
+To apply lighting to a terrain, either using OpenGL lights, or 
+simulating them, it is necessary to first compute normals. A normal is a
+ vector that defines how a surface responds to lighting, i.e. how it is 
+lit. The amount of light reflected by a surface is proportional to the 
+angle between the lights direction and the normal. The smaller the angle
+ the brighter the surface will look.
+<p>
+</p>
+Normals in OpenGL can be defined per face or per vertex. If defining a 
+normal per face then the normal is commonly defined as a vector which is
+ perpendicular to the surface. In order to find a perpendicular vector 
+to a face, two vectors coplanar with the face are needed. Afterwards the
+ cross product will provide the normal vector, i.e. a perpendicular 
+vector to the face. 
+<p>
+</p>
+So the first step is to compute two vectors coplanar to a face. Assuming
+ the the faces are triangles defined by points t1,t2,t3, then two 
+possible vectors are:
+<dl>
+<li>
+        <bitem>v1 = t2 - t1
+</bitem>
+    </li>
+<li>
+        <bitem>v2 = t3 - t1
+</bitem>
+    </li>
+</dl>
+<center>
+<p>
+    </p>
+    <img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/triangle.gif" height="256" width="256"><p>
+    </p>
+</center>
+With the two vectors, v1 and v2, it is now possible to compute the cross
+ product between them to find a perpendicular vector to the face. 
+<center>
+    <p>
+    </p>
+    <img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/normal.gif" height="256" width="256"><p>
+    </p>
+</center>
+The equations bellow show the necessary steps to compute a normal vector <i>v</i>. The required opeartion is called cross product, and it is represented by "x".
+<br>
+<br>
+<hr>
+<pre>    <code>
+	v = v1 x v2
+	
+	v = [vx,vy,vz] where,
+	
+		vx = v1y * v2z - v1z * v2y
+		
+		vy = v1z * v2x - v1x * v2z
+		
+		vz = v1x * v2y - v1y * v2x
+</code>
+</pre>
+<hr>
+<br>
+Another necessary step to obtain proper lighting is to normalise the 
+vector, i.e. make it unit length.  OpenGL takes into consideration the 
+length of the normal vector when computing lighting. Normalisation 
+implies first computing the lenght of the vector, and then dividing each
+ component by the vectors length.
+<p>
+</p> 
+The length of a vector is computed as:
+<center>
+<p>
+    </p>
+    <img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/length.gif"><p>
+    </p>
+</center>
+Therefore the normalized vector <i>nv</i> is computed as:
+<br>
+<br>
+<hr>
+<pre>    <code>
+	nv = [nvx,nvy,nvz] where,
+	
+		nvx = vx / l
+		nvy = vy / l
+		nvz = vz / l
+</code>
+</pre>
+<hr>
+<br>
+The main problem with assigning a normal per face is that the terrain 
+looks faceted, i.e. the brightness of each face is constant, and there 
+is a clear difference between faces with differen orientations. In order
+ to get a smoother look normals should be computed per vertex, and not 
+per face. When computing normals per vertex it is necessary to take into
+ account the faces that share the vertex. So for instance if using 
+quads, each vertex (excluding the corner and border vertices), is shared
+ by four polygons. The normal at a vertex should be computed as the 
+normalised sum of all the unit length normals for each face the vertex 
+shares. Consider the following image:
+<center>
+<p>
+    </p>
+    <img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/tnormals.gif" height="346" width="370"><p>
+    </p>
+</center>
+In the above image, <i>v</i> represents the normal at the center vertex. Each <i>vij</i> represents a normal for each face that shares the center vertex. So for instance <i>v12</i> is the unit lenght normal for the bottom right face.
+<p>
+</p>
+The vertex normal <i>v</i> is computed as the normalised sum of all <i>vij</i> vectors:
+<br>
+<br>
+<hr>
+<pre>    <code>
+	v = normalised(sum(v12, v23, v34, v41))
+	
+	where
+	
+		vij = normalised(vi x vj) // normalised cross product
+</code>
+</pre>
+<hr>
+<br>
+It is also posible to consider the eight neighbour vertices, instead of 
+only four. This latter option will probably look smoother in the general
+ case.
+<p>
+</p>
+Note that when computing the normals a scale is assumed. If the 
+application has performed non-uniform scaling the normals will no longer
+ be correct. If scaling the heights is required use the function <i>terrainScale</i> provided in the terrain library. This function recomputes the normals. If the grid needs scaling then use the function <i>terrainDim</i> to enlarge the terrain.
+
+
+
+
+
+<p>
+<table border="0" width="100%">
+<tbody><tr>
+<td>
+ [<a href="http://www.lighthouse3d.com/opengl/terrain/index.php?heightmap">Previous: Height Maps from Images</a>]</td><td align="RIGHT">
+ [<a href="http://www.lighthouse3d.com/opengl/terrain/index.php?light">Next: Simulating Light</a>]	
+</td></tr></tbody></table>		
+		
+		
+		
+		
+		
+			</p></td>
+	</tr>
+	<tr>
+		<td colspan="2">
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/TUTORIAL2_20.gif" height="25" width="8"></td>
+		<td>
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/TUTORIAL2_21.gif" height="25" width="20"></td>
+		<td>
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/TUTORIAL2_22.gif" height="25" width="130"></td>
+		<td>
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/TUTORIAL2_23.gif" height="25" width="17"></td>
+		<td>
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/TUTORIAL2_25.gif" height="25" width="7"></td>
+		<td>
+			<img src="OpenGL%20@%20Lighthouse%203D%20-%20Terrain%20Tutorial_files/TUTORIAL2_26.gif" height="25" width="23"></td>
+		<td></td>
+		<td></td>
+	</tr>
+
+</tbody></table>
+ <br>
+<br>
+</p><center>
+<font color="#333333" size="-1">
+Site designed and maintained by <a href="mailto:antonio.ramires@lighthouse3d.com">António Ramires Fernandes</a><br>
+Your comments, suggestions and references to further material are welcome!
+</font><p><font color="#333333" size="-1"><a href="http://www.lighthouse3d.com/pub/privacy.shtml">Lighthouse 3D privacy statement</a>
+
+</font>
+</p></center>
+
+</body></html>

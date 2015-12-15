@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/igor/Downloads/v10_template/p01.cpp
+GL/gl.h
+-
+GL/glu.h
+-
+GL/glut.h
+-
+math.h
+-
+iostream
+-
+
