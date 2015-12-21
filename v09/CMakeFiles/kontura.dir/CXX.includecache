@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/igor/Downloads/v09/main.cpp
+iostream
+-
+stdlib.h
+-
+GL/glut.h
+-
+GL/glext.h
+-
+vector
+-
+array
+-
+iostream
+-
+

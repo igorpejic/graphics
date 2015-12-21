@@ -1,0 +1,28 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/igor/graphics/v08_template/imageloader.h
+
+/home/igor/graphics/v08_template/pathconfig.h
+string
+-
+
+/home/igor/graphics/v08_template/v08.cpp
+iostream
+-
+stdlib.h
+-
+GL/glut.h
+-
+GL/glext.h
+-
+imageloader.h
+/home/igor/graphics/v08_template/imageloader.h
+pathconfig.h
+/home/igor/graphics/v08_template/pathconfig.h
+

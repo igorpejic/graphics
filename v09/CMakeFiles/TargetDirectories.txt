@@ -1,0 +1,1 @@
+/home/igor/Downloads/v09/CMakeFiles/kontura.dir

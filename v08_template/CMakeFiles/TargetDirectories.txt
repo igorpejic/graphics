@@ -1,0 +1,1 @@
+/home/igor/graphics/v08_template/CMakeFiles/glt_01.dir

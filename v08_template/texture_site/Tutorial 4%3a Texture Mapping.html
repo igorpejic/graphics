@@ -1,0 +1,295 @@
+<!--?xml version="1.0" encoding="utf-8"?-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US"><head>
+<meta http-equiv="content-type" content="text/html; charset=windows-1252">
+<title>Tutorial 4:  Texture Mapping</title>
+<link rel="stylesheet" href="Tutorial%204:%20Texture%20Mapping_files/class.css" type="text/css">
+<style type="text/css">
+</style>
+</head> 
+
+<body bgcolor="#ffffff">
+
+<div id="dic_bubble" class="selection_bubble fontSize13 noSelect" style="z-index:9999; border: 1px solid #4AAEDE;fetching=false"></div><h1>Tutorial 4:  Texture Mapping</h1>
+
+
+<p>One of the most powerful tools in computer graphics is <i>texture
+mapping</i>.&nbsp; Texture mapping applies an image to a surface.&nbsp; Modeling
+a complex surface is often impractical because of the detail required and it
+would be difficult to render this fine detail accurately.&nbsp; Instead, texture
+mapping allows a simple polygon to appear to have a complex surface
+texture.&nbsp;</p><p>For this tutorial you'll be working with some code I've 
+created.&nbsp; You'll find this code in <a href="https://www.cse.msu.edu/%7Ecse872/tutorial4.zip">tutorial4.zip</a>.&nbsp; </p><p>Note that my CTexture class that you will be using can read PPM and BMP
+files.&nbsp;  The criteria for an OpenGL texture is:
+</p><ul>
+  <li>At least 4x4.</li>
+  <li>Height and width can be different, but must be powers of 2.</li>
+</ul>
+<p>In this tutorial you will:</p><ol>
+  <li>Add new textures to the cube.</li>
+  <li>Texture map a globe image onto a sphere.</li>
+  <li>Texture map two linked hoops.</li>
+</ol>
+<h2>Running the Program</h2>
+<p>When you run the program, you'll see a cube.&nbsp; Try the options in the Lab
+Stuff menu.&nbsp; Note that the code includes a cube, sphere, and two hooked
+tori.&nbsp; The cube has a texture on the front face.&nbsp; You can open the
+file plank01.bmp to see the image that is being placed on the front of the
+cube.&nbsp; Let's take a look at what is happening here.</p><h3>Basic Image
+Management</h3>
+<p>First, look at the file Texture.cpp.&nbsp; This is a class I have created for
+storing texture images.&nbsp; It contains member functions for loading an image
+from a file.&nbsp; You can also create your own images manually if you really
+want to.&nbsp; An image is stored like this:</p><p>&nbsp;&nbsp;&nbsp; BYTE **
+m_image;</p><p>The array for the image is allocated like this:
+</p><blockquote>
+  <p>   BYTE *image = new BYTE[usewidth * m_height];<br>
+   m_image = new BYTE *[m_height];<br>
+   for(int i=0;  i&lt;m_height;  i++, image += usewidth)<br>
+  {<br>
+  &nbsp;&nbsp;&nbsp; m_image[i] = image;<br>
+  }</p></blockquote>
+<p>Note that this LOOKS LIKE a 2D array.&nbsp; The actual image is in a 1D
+array, so the image data is sequential.&nbsp; This is important because OpenGL
+expects only a single pointer to all of the memory for your image.&nbsp; Since
+we want to be able to access the memory as a 2D array, though, we create a
+simple array of pointers to the data for each row.</p><p>I'm loading this in using
+the Microsoft byte ordering of Blue, Green, Red (BGR).&nbsp; So, a column is of
+data is 3 times the width of the image because there are three bytes per
+pixel.&nbsp; Then the data is simply BGRBGRBGR sequentially for the first three
+pixels.&nbsp;&nbsp;</p><h3>Tell OpenGL about the texture</h3>
+<p>We have to do several things to enable this as an OpenGL texture.&nbsp; The
+first of these is getting an integer that will serve as a texture
+identification, what OpenGL calls a texture name.&nbsp; But, we need to
+understand the concept of a <i>current OpenGL rendering context</i>.&nbsp;
+During execution of the function OnGLDraw, you can freely use OpenGL
+functions.&nbsp; <u>However, you can't use OpenGL functions at other places in 
+your program.</u>&nbsp; As an
+example, you can't make any OpenGL calls in the constructor for CChildView.&nbsp;
+When that constructor is run, OpenGL has not even been initialized.&nbsp; When
+OnGLDraw is executed there is a current OpenGL rendering context, meaning
+OpenGL is active and ready to receive commands.&nbsp; After the function ends,
+the context is turned back off.&nbsp;&nbsp;</p><p>What this means in this
+application is that the calls to initialize the texture need to be done in
+OnGLDraw.&nbsp; (There are other options, which we'll discuss later).&nbsp;
+Since I want to do the LoadFile operation for CTexture in the constructor, I
+wanted an easier way to deal with initializing OpenGL when is okay to do so.</p><p>There
+is a member function CTexture::TexName(). This function returns the texture
+name.&nbsp; However, the first time it is called, it will not have a texture
+name.&nbsp; Instead, it will create one at this time and set up the texture for
+OpenGL.&nbsp; Here's the code to do this (from Texture.cpp):
+</p><blockquote>
+  <p>   if(m_initialized)<br>
+  &nbsp;&nbsp;&nbsp; return m_texname;<br>
+  <br>
+   glGenTextures(1, &amp;m_texname);<br>
+   glBindTexture(GL_TEXTURE_2D, m_texname);<br>
+  <br>
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);<br>
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);<br>
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);<br>
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);<br>
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0,<br>
+      GL_BGR_EXT, GL_UNSIGNED_BYTE, m_image[0]);<br>
+  <br>
+   m_initialized = true;<br>
+  <br>
+   return m_texname;
+</p></blockquote>
+<p>The glGenTextures() call creates a texture name.&nbsp; All this is really
+doing is ensuring you get a unique integer that's not been used as a texture ID
+before.&nbsp; Then, I'm binding that name as the current 2D texture.&nbsp; The
+following calls all operate on the current texture.&nbsp; Since we bound our new
+ID, these calls work for our texture.</p><p>The first two glTexParameter calls tell
+OpenGL that I want to be able to "tile" my texture.&nbsp; Tiling
+simply means that the texture will repeat if I go beyond its bounds.&nbsp; Note
+that some textures work well for tiling and others do not.&nbsp; You may have to
+work on a texture to get it tile nicely.&nbsp; The S and T dimensions are the
+X,Y dimensions of a texture.&nbsp; OpenGL uses other variables so you won't
+confuse S and T with X and Y.&nbsp;&nbsp;</p><p>The next two glTexParameter calls
+tell OpenGL that we're going to use bilinear interpolation to determine what the
+color is between two pixels on a texture.&nbsp; The other option is GL_NEAREST,
+which is often faster, but not as good in quality.&nbsp;&nbsp;</p><p>Then, the
+glTexImage2D call tells OpenGL where to find the actual texture data.&nbsp; Note
+that this is a reference, so don't delete the data until you're sure you're not
+going to draw it again.&nbsp; You can look up the parameters for this function
+in MSDN.</p><h3>Loading the Image</h3>
+<p>I found it easiest to add CTexture objects as members of CChildView and load
+the image in the CChildView constructor like this:</p><p>&nbsp;&nbsp;&nbsp;
+m_wood.LoadFile("plank01.bmp");</p><p>This simply loads the file
+plank01.bmp into the object.&nbsp;&nbsp;</p><h3>Using the Image</h3>
+<p>Go to the function CChildView::Box().&nbsp; This function draws the 6
+quadrilaterals that make up the faces of the cube.&nbsp; The first of these is
+texture mapped.&nbsp; To texture map a primitive, so the following:</p><p>Enable the
+texture you want to use like this:
+</p><blockquote>
+  <p>   glEnable(GL_TEXTURE_2D);<br>
+   glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);<br>
+   glBindTexture(GL_TEXTURE_2D, m_wood.TexName());
+</p></blockquote>
+<p>The first call enables texture mapping.&nbsp; Be sure you disable it when you
+are done, or it will try to texture map everything else.&nbsp; You'll see a
+glDisable(GL_TEXTURE_2D) after the quadrilateral is drawn.&nbsp; The second line
+sets the texture environment mode to GL_MODULATE.&nbsp; There are several ways
+textures can be combined with surface colors.&nbsp; GL_REPLACE can be specified
+to just draw the surface using the texture colors only.&nbsp; But, we are using
+lighting in this tutorial and want the surface intensity to vary depending on the
+lighting on the surface.&nbsp; GL_MODULATE means the computed surface color is
+multiplied by the texture color.</p><p>NOTICE:&nbsp; When you texture map a surface,
+the surface color you select will be multiplied by the texture color.&nbsp; If
+the surface color is not white, you may get tinting of your textures.&nbsp;
+Also, you'll not get the nice specular highlights when you apply textures in
+OpenGL 1.1.&nbsp; (1.2 fixes this problem in some implementations).&nbsp;&nbsp;</p><p>The last line simply
+binds the wood texture as the current 2D texture.&nbsp; We can then utilize the
+texture.</p><p>Consider the texture like a rubber wallpaper.&nbsp; You can pick
+points on the texture and attach them to vertices.&nbsp; Texture coordinates
+range from 0 to 1.&nbsp; If you enable GL_REPEAT (we have), you can access the
+texture beyond these coordinates and it will be repeated.&nbsp; As an example,
+our wood texture has four corners:&nbsp; (0,0), (1, 0), (1,1) and (0,1).&nbsp;
+But, the image is repeated at (1,0), (2, 0), (2,1), (1, 1).&nbsp;&nbsp;</p><p>We'll
+assign the corners of the texture to the corners of the image.&nbsp; The code
+for this is:
+</p><blockquote>
+  <p>   glBegin(GL_QUADS);<br>
+  &nbsp;&nbsp; glNormal3d(0, 0, 1);<br>
+  &nbsp;&nbsp; glTexCoord2f(0, 0);<br>
+  &nbsp;&nbsp; glVertex3dv(a);<br>
+  &nbsp;&nbsp; glTexCoord2f(1, 0);<br>
+  &nbsp;&nbsp; glVertex3dv(b);<br>
+  &nbsp;&nbsp; glTexCoord2f(1, 1);<br>
+  &nbsp;&nbsp; glVertex3dv(c);<br>
+  &nbsp;&nbsp; glTexCoord2f(0, 1);<br>
+  &nbsp;&nbsp; glVertex3dv(d);<br>
+  glEnd();
+</p></blockquote>
+<p>Note the glTexCoord2f calls to specify the texture coordinates.&nbsp; These
+must be specified BEFORE the glVertex call.&nbsp; Note the glDisable after all
+of this is done.</p><p>That's all there is to getting this image onto the cube front
+face.&nbsp; Run it one more time to make sure you understand what is happening.</p><h2>Let's
+Map the World onto the Side of the Cube</h2>
+<p>Now, we're going to map another side of the cube.&nbsp; First add a new
+member variable to CChildView of type CTexture named m_worldmap.&nbsp; You can
+do this by right-clicking CChildView in ClassView and selecting Add Member
+Function.&nbsp; Then, we'll add the following to the CChildView constructor:</p><p>&nbsp;&nbsp;&nbsp;
+m_worldmap.LoadFile("worldmap.bmp");</p><p>This file is in your local
+directory with the rest of the project.&nbsp;&nbsp;</p><p>Now, we'll utilize
+it.&nbsp; Move the glDisable before the second quad in the cube to after the
+quad.&nbsp; Where it was, add the line:
+</p><blockquote>
+  <p>glBindTexture(GL_TEXTURE_2D, m_worldmap.TexName());
+</p></blockquote>
+<p>Now, before each glVertex() call, we want to specify a texture
+coordinate.&nbsp; If you look at how this face is defined, you'll see that it is
+drawn by specifying the vertices in a counter-clockwise order starting with the
+top left corner (vertex c).&nbsp; We want the top left corner of the map to
+correspond to this location and then specify the coordinates in
+counter-clockwise around the map.&nbsp; Note that you can reverse order and flip
+the map, do strange things with it, etc.&nbsp; You might try some wrong orders
+just to see what happens.&nbsp; When done, your code should look like this:
+</p><blockquote>
+  <p>   glBindTexture(GL_TEXTURE_2D, m_worldmap.TexName());<br>
+  <br>
+   // Right<br>
+   glBegin(GL_QUADS);<br>
+      glNormal3d(1, 0, 0);<br>
+      glTexCoord2f(0, 1);<br>
+      glVertex3dv(c);<br>
+      glTexCoord2f(0, 0);<br>
+      glVertex3dv(b);<br>
+      glTexCoord2f(1, 0);<br>
+      glVertex3dv(f);<br>
+      glTexCoord2f(1, 1);<br>
+      glVertex3dv(g);<br>
+   glEnd();<br>
+  <br>
+  glDisable(GL_TEXTURE_2D);
+</p></blockquote>
+<p>Run this and see if it works right.</p><h2>Tasks for you to do.</h2>
+<p>Now, please do these tasks on your own:
+</p><ul>
+  <li>Map the world map onto the back of the cube so that it tiles 9
+    copies&nbsp; in a three by three configuration.&nbsp;&nbsp;</li>
+  <li>Map the image sunset.bmp onto the top of the cube.</li>
+  <li>Map the image marble03.bmp onto the left side of the cube.</li>
+</ul>
+<h2>Mapping a Globe onto the Sphere</h2>
+<p>We have a sphere in this code.&nbsp; Wouldn't it be neat to map the world
+onto that sphere?&nbsp; But, what would it take to do this?</p><p>First, let's
+enable the texture.&nbsp; Add the following code to the Sphere function before
+the SphereFace calls.&nbsp; Then, all a glDisable(GL_TEXTURE_2D) call after
+those calls.
+</p><blockquote>
+  <p>   glEnable(GL_TEXTURE_2D);<br>
+   glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);<br>
+   glBindTexture(GL_TEXTURE_2D, m_worldmap.TexName());
+</p></blockquote>
+<p>A question you may have:&nbsp; Why am I using the glTexEnvf when I didn't for
+the map on the cube?&nbsp; I knew there was no other code between faces of the
+cube that might change GL_TEXTURE_ENV_MODE.&nbsp; But, I don't know if it may
+have been changed elsewhere.&nbsp; Also, should I just call sphere without ever
+calling cube, the parameter would never be set.</p><p>The interesting problem for
+the sphere is to determine the texture coordinates for each vertex.&nbsp; One
+way to look at this problem is to use the surface normal as way to tell where we
+are on the face of the sphere.&nbsp; If we consider this a vector from the
+inside of the sphere, we can easily compute the <i>latitude</i> and <i>longitude</i> on the
+surface of the globe.&nbsp; These values correspond to point on the map.</p><p>Right
+after the call to glBegin(GL_TRIANGLES), add the following code:
+</p><blockquote>
+  <p>      // What's the texture coordinate for this normal?<br>
+      tx1 = atan2(a[0], a[2]) / (2. * GR_PI) + 0.5;<br>
+      ty1 = asin(a[1]) / GR_PI + .5;<br>
+  <br>
+      glTexCoord2f(tx1, ty1);
+</p></blockquote>
+<p>So, what does this do?&nbsp; a[0] and a[2] are the X and Z values of the
+normal.&nbsp; If you look straight down onto the globe from the top, the vector
+made up of the X and Z values will tell you the longitude on the globe!&nbsp; I
+use atan2 to convert that to an angle in radians.&nbsp; This angle is between
+-PI and PI.&nbsp; I divide by 2PI, so it's now between -.5 and .5.&nbsp; Adding
+0.5 makes it range from 0 to 1.&nbsp; This is the X value in the texture
+map.&nbsp;&nbsp;</p><p>Next, I compute the Y value in the texture map.&nbsp; a[1] is
+the Y value of the normal.&nbsp; If you consider a right triangle with a hypotenuse
+of length 1 (our normalized vector) and a rise of Y, we can compute the angle
+using asin.&nbsp; This is the angle between the Y vector and the X/Z
+plane.&nbsp; This gives us values from -PI / 2 to PI / 2.&nbsp; (up to 90
+degrees up or down).&nbsp; ty1 then ranges from 0 to 1.&nbsp;&nbsp;</p><p>Add lines
+like this for the other two vertices.&nbsp; I suggest not reusing tx1 and ty1,
+since we'll need to change something in a moment.</p><p>Run this and spin the
+globe.&nbsp; You may notice that there's part of the globe that's messed
+up.&nbsp; Try to take a moment and figure out what it is.&nbsp; Then, read the
+following answer.</p><p>The problem is that some triangles will map to both ends of
+the map.&nbsp; After all, the right edge of the map meets the left edge.&nbsp;
+Imagine a triangle hanging off one edge.&nbsp; The problem is that the trig
+functions simply wrap the value around.&nbsp; So, you end of with a triangle the
+has two vertices on one edge of the map and one on the other edge.&nbsp; This
+causes all of the map between these points to be smashed into the image mapped
+onto the polygon.&nbsp;</p><p>So, how do we fix this?&nbsp; The easiest solution is
+to check for this problem.&nbsp; Try this for the second vertex:
+</p><blockquote>
+  <p>      // The second vertex<br>
+      tx = atan2(b[0], b[2]) / (2. * GR_PI) + 0.5;<br>
+      ty = asin(b[1]) / GR_PI + .5;<br>
+      if(tx &lt; 0.75 &amp;&amp; tx1 &gt; 0.75)<br>
+         tx += 1.0;<br>
+      else if(tx &gt; 0.75 &amp;&amp; tx1 &lt; 0.75)<br>
+         tx -= 1.0;<br>
+  <br>
+      glTexCoord2f(tx, ty);
+</p></blockquote>
+<p>Do the same for the third vertex (based on vector c, of course), and you
+should have a nicely mapped globe.</p><h2>An Exercise</h2>
+<p>Your task, now, is to texture map the two Tori.&nbsp; Please use different
+textures for each of them.&nbsp; Important requirement:&nbsp; The texture should
+appear the same no matter what values you use for the torus steps.&nbsp; I
+should be able to change a Torus call from      Torus(5, 1, 50, 20) to      Torus(5, 1,
+30, 30) without changing the appearance of the texture.&nbsp; You need to think
+about how to map a texture onto this surface and how you want to utilize
+tiling.&nbsp;&nbsp;</p><p><i>Hint:&nbsp; </i>This is much easier than the sphere
+because the angles are already there for you.&nbsp; Read the torus generator
+code carefully and get a good understanding of what the two angles for any
+vertex are.&nbsp; It only takes a single line for each vertex to compute and set
+the values.
+
+
+
+</p></body></html>
