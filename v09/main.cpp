@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <stdlib.h>
+//#include <cmath>
 
 #include <GL/glut.h>
 #include <GL/glext.h>
@@ -8,6 +9,12 @@
 #include <array>
 #include <iostream>
 using namespace std;
+
+//using std::max;
+//using std::min;
+#define max(x, y) ((x) > (y) ? (x) : (y))
+#define min(x, y) ((x) < (y) ? (x) : (y))
+
 struct Point
 {
     Point(){}
@@ -70,6 +77,93 @@ void drawBox()
 
 }
 
+const float val = 5.0f;
+
+int n_intersections(Cell cell)
+{
+    int n = 0;
+    float _max, _min;
+    _max = max(attributes[cell.ids[0]], attributes[cell.ids[1]]);
+    _min = min(attributes[cell.ids[0]], attributes[cell.ids[1]]);
+    cout<<_max << " " << _min << endl;
+    if (_max > val && _min < val) n++;
+
+    _max = max(attributes[cell.ids[1]], attributes[cell.ids[2]]);
+    _min = min(attributes[cell.ids[1]], attributes[cell.ids[2]]);
+    cout<<_max << " " << _min << endl;
+    if (_max > val && _min < val) n++;
+    _max = max(attributes[cell.ids[2]], attributes[cell.ids[3]]);
+    _min = min(attributes[cell.ids[2]], attributes[cell.ids[3]]);
+    cout<<_max << " " << _min << endl;
+    if (_max > val && _min < val) n++;
+
+    _max = max(attributes[cell.ids[0]], attributes[cell.ids[3]]);
+    _min = min(attributes[cell.ids[0]], attributes[cell.ids[3]]);
+    cout<<_max << " " << _min << endl;
+    if (_max > val && _min < val) n++;
+    return n;
+}
+
+Point get_point(int id_0, int id_1)
+{
+    float s;
+    s = (val - attributes[id_0])/(attributes[id_1] - attributes[id_0]);
+
+    return Point(points[id_0].x + s*(points[id_1].x - points[id_0].x),
+                 points[id_0].y + s*(points[id_1].y - points[id_0].y), 0);
+}
+
+std::pair<Point, Point> two_points(Cell cell)
+{
+    Point pts[2];
+    int current=0;
+    float _max, _min;
+    _max = max(attributes[cell.ids[0]], attributes[cell.ids[1]]);
+    _min = min(attributes[cell.ids[0]], attributes[cell.ids[1]]);
+    cout<<_max << " " << _min << endl;
+    if (_max > val && _min < val)
+    { pts[current++] = get_point(cell.ids[0], cell.ids[1]); }
+
+    _max = max(attributes[cell.ids[1]], attributes[cell.ids[2]]);
+    _min = min(attributes[cell.ids[1]], attributes[cell.ids[2]]);
+    cout<<_max << " " << _min << endl;
+    if (_max > val && _min < val)
+    { pts[current++] = get_point(cell.ids[1], cell.ids[2]); }
+
+    _max = max(attributes[cell.ids[2]], attributes[cell.ids[3]]);
+    _min = min(attributes[cell.ids[2]], attributes[cell.ids[3]]);
+    cout<<_max << " " << _min << endl;
+    if (_max > val && _min < val)
+    { pts[current++] = get_point(cell.ids[2], cell.ids[3]); }
+
+    _max = max(attributes[cell.ids[0]], attributes[cell.ids[3]]);
+    _min = min(attributes[cell.ids[0]], attributes[cell.ids[3]]);
+    cout<<_max << " " << _min << endl;
+    if (_max > val && _min < val)
+    { pts[current++] = get_point(cell.ids[3], cell.ids[0]); }
+    return std::make_pair(pts[0], pts[1]);
+}
+
+void drawContour()
+{
+    for(int i=0; i<25; ++i)
+    {cout<<attributes[i]<<endl;}
+    cout<<"******************"<<endl;
+    for (auto cell : cells) {
+        int intersections = n_intersections(cell);
+        cout << intersections << endl;
+        if (intersections == 2) {
+            auto pts = two_points(cell);
+            cout << pts.first.x << " " << pts.first.y << endl << pts.second.x << " " << pts.second.y << endl;
+            glBegin(GL_LINES);
+            //glColor3f(0, 0, 0);
+            glVertex3f(pts.first.x, pts.first.y, 0);
+            glVertex3f(pts.second.x, pts.second.y, 0);
+            glEnd();
+        }
+    }
+}
+
 void drawScene() 
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -83,9 +177,12 @@ void drawScene()
 
     glTranslatef(0.0f, 0.0f, -20.0f);
 
-    drawBox();
+    //drawBox();
+    drawContour();
 
     glutSwapBuffers();
+
+
 }
 
 void initMesh()
@@ -100,13 +197,39 @@ void initMesh()
 
         }
     }
-    attributes = {1,2,3,4,7,
+    attributes.push_back(1);
+    attributes.push_back(2);
+    attributes.push_back(3);
+    attributes.push_back(4);
+    attributes.push_back(7);
+    attributes.push_back(2);
+    attributes.push_back(7);
+    attributes.push_back(8);
+    attributes.push_back(6);
+    attributes.push_back(2);
+    attributes.push_back(3);
+    attributes.push_back(7);
+    attributes.push_back(9);
+    attributes.push_back(7);
+    attributes.push_back(3);
+    attributes.push_back(1);
+    attributes.push_back(3);
+    attributes.push_back(6);
+    attributes.push_back(6);
+    attributes.push_back(3);
+    attributes.push_back(0);
+    attributes.push_back(1);
+    attributes.push_back(1);
+    attributes.push_back(3);
+    attributes.push_back(2);
+
+    /*,2,3,4,7,
                  2,7,8,6,2,
                  3,7,9,7,3,
                  1,3,6,6,3,
-                 0,1,1,3,2};
-    for(int i=0; i<25; ++i)
-    {points[i].z = attributes[i];}
+                 0,1,1,3,2}; */
+//    for(int i=0; i<25; ++i)
+//    {points[i].z = attributes[i];}
 
     int szx=5;
     int szy=5;
@@ -115,16 +238,15 @@ void initMesh()
         for(int i=0; i<4; ++i)
         {
             Cell c;
-            c.ids = {j*szx+i, j*szx+i+1, (j+1)*szx+i+1, (j+1)*szx+i};
+            c.ids[0] = j*szx+i;
+            c.ids[1] = j*szx+i+1;
+            c.ids[2] = (j+1)*szx+i+1;
+            c.ids[3] = (j+1)*szx+i;
             cells.push_back(c);
         }
     }
-
-    for(auto c: cells)
-    {
-        std::cout << c << 'c';
-    }
 }
+
 
 int main(int argc, char** argv) 
 {
