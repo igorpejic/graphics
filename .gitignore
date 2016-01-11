@@ -32,3 +32,8 @@
 *.cmake
 *.make
 *.log
+
+
+CMakeFiles
+Makefile
+CMakeCache.txt
