@@ -17,9 +17,11 @@ struct Point
 
 const int particleNum = 20;
 double tt = 0.;
-Point getPosition(const double& r, const double &t, const double& scale)
+Point getPosition(const double& r, const double &t, const double& scale, const double& w, const double& phase = M_PI/2)
 {
-    return Point(r*cos(scale*t), r*cos(scale*t), scale*t);
+    return Point(r*(1 + 0.1*scale*t)*cos(scale*w*t + phase), 
+			     r*(1 + 0.1*scale*t)*sin(scale*w*t + phase), 
+				                                   scale*t);
 }
 
 void handleKeypress(unsigned char key, int x, int y) 
@@ -51,13 +53,49 @@ void handleResize(int w, int h)
         gluPerspective(45,ratio,1,1000); // view angle u y, aspect, near, far
 }
 
-void drawParticle()
+void draw_sphere(double radius, int lats, int longs)
+{
+	int i, j;
+	for (i = 0; i <= lats; i++) {
+		double lat0 = M_PI * (-0.5 + (double)(i-1) / lats);
+		double z0 = sin(lat0);
+		double zr0 = cos(lat0);
+
+		double lat1 = M_PI * (-0.5 + (double)i / lats);
+		double z1 = sin(lat1);
+		double zr1 = cos(lat1);
+
+		glBegin(GL_QUAD_STRIP);
+		for (j = 0; j <= longs; j++) {
+			double lng = 2 * M_PI * (double)(j - 1) / longs;
+			double x = cos(lng);
+			double y = sin(lng);
+
+			glNormal3f(x * zr0, y * zr0, z0);
+			glVertex3f(x * zr0, y * zr0, z0);
+			glNormal3f(x * zr1, y * zr1, z1);
+			glVertex3f(x * zr1, y * zr1, z1);
+		}
+		glEnd();
+	}
+}
+
+void drawParticle(Point p)
 {
     glPushMatrix();
-    Point p = getPosition(1, tt, 1);
     glTranslatef(p.x,p.y,p.z);
-    glutSolidSphere(0.2,6,6);
+	glutSolidSphere(0.5, 6, 6); 
     glPopMatrix();
+}
+
+void draw_particles()
+{
+	int i;
+	for (i = 1; i <= 50; i++) {
+		glColor3f(i/50.0f, 0.5f, 0.5f);
+		Point tmp = getPosition(0.1*i, tt/2, 0.05*i, 1);
+		drawParticle(tmp);
+	}
 }
 
 void drawScene() 
@@ -67,14 +105,14 @@ void drawScene()
     glMatrixMode(GL_MODELVIEW); // idemo u perspektivu
     glLoadIdentity(); // resetiranje
 
-    gluLookAt(0.0,0.0,5.0, // camera
-              0.0,0.0,-1.0, // where
+    gluLookAt(0.0,0.0,-5.0, // camera
+              0.0,0.0,+1.0, // where
               0.0f,1.0f,0.0f); // up vector
 
-    glTranslatef(0.0f, 0.0f, -20.0f);
+    glTranslatef(0.0f, 0.0f, +20.0f);
 
 
-    drawParticle();
+    draw_particles();
 
     glutSwapBuffers();
 }
